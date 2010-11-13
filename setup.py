@@ -9,13 +9,7 @@ def read(*rnames):
 long_description = (
     read('README.txt')
     + '\n' +
-    'Change history\n'
-    '**************\n'
-    + '\n' +
     read('docs/HISTORY.txt')
-    + '\n' +
-    'Contributors\n'
-    '************\n'
     + '\n' +
     read('docs/CONTRIBUTORS.txt')
     )
