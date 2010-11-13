@@ -10,3 +10,8 @@ Works independently, or in combination with unweb.watermark.
 
 No need to install from the Plone Control Panel. Simply add it to your buildout
 eggs section.
+
+Created by `unweb.me`_
+
+.. _unweb.me: https://unweb.me
+
