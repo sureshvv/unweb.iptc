@@ -1,7 +1,12 @@
 Changelog
 =========
 
+0.2 (2010-11-22)
+----------------
+
+- Remove empty locales folder which was causing problems in some buildouts
+
 0.1 (2010-11-13)
--------------------
+----------------
 
 - Initial release
