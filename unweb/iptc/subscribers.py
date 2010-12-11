@@ -59,7 +59,10 @@ def readIPTC(obj, event):
 
     keywords = info.data['keywords']
     if keywords:
-        obj.setSubject(keywords)
+        try:
+            obj.setSubject(keywords)
+        except UnicodeDecodeError:
+            obj.setSubject([k.decode('utf-8','ignore') for k in keywords])
 
     location = info.data['sub-location'] or ''
     city = info.data['city'] or ''
