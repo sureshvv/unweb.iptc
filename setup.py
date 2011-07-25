@@ -37,12 +37,14 @@ setup(name='unweb.iptc',
       zip_safe=False,
       install_requires=[
           'setuptools',
-          # -*- Extra requirements: -*-
-          'five.grok',
+          'Products.CMFPlone',
+          'Products.ATContentTypes',
           'IPTCInfo',
-          'plone.app.testing',
-          'interlude',
       ],
+      extras_require = {
+          'test': ['plone.app.testing',
+                   'interlude',]
+      },
       entry_points="""
       # -*- Entry points: -*-
 

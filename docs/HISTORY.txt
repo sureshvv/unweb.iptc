@@ -1,6 +1,18 @@
 Changelog
 =========
 
+after 0.2
+---------
+
+- Cleanup dependencies [fRiSi]
+
+  * remove unnecessary depencency on grok
+  * no need to initialize the package as Zope2 product
+  * move dependencies on plone.app.testing and interlude to
+    `unweb.iptc[test]` extra
+  * Add dependency on Procuts.CMFPlone and ATContentTypes
+
+
 0.2 (2010-11-22)
 ----------------
 
