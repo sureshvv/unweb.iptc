@@ -1,6 +1,12 @@
 Changelog
 =========
 
+after 0.3
+---------
+
+- handle images with latin-1 encoded iptc data too. description works
+  ootb, title needs an extra encoding try. [fRiSi] 
+
 0.3 (2011-12-02)
 ----------------
 

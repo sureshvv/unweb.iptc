@@ -27,12 +27,16 @@ def readIPTC(obj, event):
     fout = open(filename, 'wb')
     fout.write(img.data)
     fout.close()
+    
     info = IPTCInfo(filename, force=True)
 
+    
     title = info.data['object name']
     if title:
         try:
             obj.setTitle(title)
+        except UnicodeDecodeError:
+            obj.setTitle(title.decode('latin-1'))            
         except UnicodeDecodeError:
             obj.setTitle(title.decode('utf-8','ignore'))
 
