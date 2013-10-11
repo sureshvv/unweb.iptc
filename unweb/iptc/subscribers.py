@@ -13,6 +13,14 @@ try:
 except ImportError:
     WATERMARK = 0
 
+def get_member_id(obj, fullname):
+    mem_tool = getToolByName(obj,'portal_membership')
+    for u in mem_tool.listMembers():
+        mem = mem_tool.getMemberInfo(u.getMemberId())
+        if mem['fullname'] == fullname:
+            return u.getMemberId()
+    return fullname
+
 @adapter(IATImage, IObjectInitializedEvent)
 def readIPTC(obj, event):
     """ Load all the basic IPTC metadata from the Image file and store them in 
@@ -50,6 +58,7 @@ def readIPTC(obj, event):
     creator = info.data['by-line']
     if creator:
         try:
+            creator = get_member_id(obj, creator)
             obj.setCreators([creator])
         except UnicodeDecodeError:
             obj.setCreators([creator.decode('utf-8','ignore')])
@@ -75,10 +84,11 @@ def readIPTC(obj, event):
     countryCode = info.data['country/primary location code'] or ''
     if (country or countryCode or state or city or location):
         try:
-            obj.setLocation('%s %s %s %s %s' %(country, countryCode,state,city,location))
+            obj.setLocation('%s %s %s %s %s' %(location,city,state,countryCode,country))
         except UnicodeDecodeError:
-            obj.setLocation('%s %s %s %s %s' %(country.decode('utf-8','ignore'), countryCode.decode('utf-8','ignore'),state.decode('utf-8','ignore'),city.decode('utf-8','ignore'),location.decode('utf-8','ignore')))
+            obj.setLocation('%s %s %s %s %s' %(location.decode('utf-8','ignore'), city.decode('utf-8','ignore'), state.decode('utf-8','ignore'), countryCode.decode('utf-8','ignore'), country.decode('utf-8','ignore')))
 
+    obj._renameAfterCreation()
     obj.reindexObject()
 
 @adapter(IATImage, IObjectEditedEvent)
