@@ -4,7 +4,12 @@ from Products.Archetypes.interfaces import IObjectInitializedEvent, IObjectEdite
 from iptcinfo import IPTCInfo
 import os
 import tempfile
+import logging
+import urllib2
+import json
 from Products.CMFCore.utils import getToolByName
+
+logger = logging.getLogger('Plone')
 
 try:
     from unweb.watermark.extender import ImageExtender
@@ -83,10 +88,38 @@ def readIPTC(obj, event):
     country = info.data['country/primary location name'] or ''
     countryCode = info.data['country/primary location code'] or ''
     if (country or countryCode or state or city or location):
+        if city:
+            city += ","
         try:
             obj.setLocation('%s %s %s %s %s' %(location,city,state,countryCode,country))
         except UnicodeDecodeError:
             obj.setLocation('%s %s %s %s %s' %(location.decode('utf-8','ignore'), city.decode('utf-8','ignore'), state.decode('utf-8','ignore'), countryCode.decode('utf-8','ignore'), country.decode('utf-8','ignore')))
+
+    exif_data = obj.getEXIF()
+    if exif_data:
+        date = obj.getEXIFOrigDate()
+        obj.setEffectiveDate(date)
+        lat = exif_data.get('GPS GPSLatitude', None)
+        lon = exif_data.get('GPS GPSLongitude', None)
+        if not (country or countryCode or state or city or location):
+            if lat and lon:
+                lat1 = lat.values[0].num
+                lat1 += lat.values[1].num/60.0
+                lat1 += lat.values[2].num/(lat.values[2].den*3600.0)
+                lon1 = lon.values[0].num
+                lon1 += lon.values[1].num/60.0
+                lon1 += lon.values[2].num/(lon.values[2].den*3600.0)
+                logger.info('+++++++ GPS Data: %s %s -> %s %s', lat, lon, lat1, lon1)
+                pref = 'http://maps.googleapis.com/maps/api/geocode/json?latlng'
+                url = "%s=%s,%s&sensor=true" % (pref, lat1, lon1)
+                response = urllib2.urlopen(url)
+                data = json.load(response)   
+                if data.get('status','') == 'OK':
+                    location = data['results'][0]['formatted_address']
+                    try:
+                        obj.setLocation('%s' % location)
+                    except UnicodeDecodeError:
+                        obj.setLocation('%s' % location.decode('utf-8','ignore'))
 
     obj._renameAfterCreation()
     obj.reindexObject()
