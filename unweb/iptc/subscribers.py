@@ -101,15 +101,22 @@ def readIPTC(obj, event):
         obj.setEffectiveDate(date)
         lat = exif_data.get('GPS GPSLatitude', None)
         lon = exif_data.get('GPS GPSLongitude', None)
+        lat_ref = exif_data.get('GPS GPSLatitudeRef', None)
+        lon_ref = exif_data.get('GPS GPSLongitudeRef', None)
         if not (country or countryCode or state or city or location):
-            if lat and lon:
+            if lat and lon and lat_ref and lon_ref:
                 lat1 = lat.values[0].num
                 lat1 += lat.values[1].num/60.0
                 lat1 += lat.values[2].num/(lat.values[2].den*3600.0)
+                if lat_ref.values == 'S':
+                    lat1 = -lat1
                 lon1 = lon.values[0].num
                 lon1 += lon.values[1].num/60.0
                 lon1 += lon.values[2].num/(lon.values[2].den*3600.0)
-                logger.info('+++++++ GPS Data: %s %s -> %s %s', lat, lon, lat1, lon1)
+                if lon_ref.values == 'W':
+                    lon1 = -lon1
+                logger.info('+++++++ GPS Data: %s%s %s%s -> %s %s',
+                        lat, lat_ref, lon, lon_ref, lat1, lon1)
                 pref = 'http://maps.googleapis.com/maps/api/geocode/json?latlng'
                 url = "%s=%s,%s&sensor=true" % (pref, lat1, lon1)
                 response = urllib2.urlopen(url)
